@@ -1,0 +1,109 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/mathlib-initiative/formalization.yaml/main/schema/formalization.schema.json
+version: "v0.4"
+
+project:
+  name: "Kőnig's edge-colouring theorem"
+  description: >-
+    A Lean 4 / Mathlib formalization of Kőnig's edge-colouring theorem: the line graph of a
+    finite bipartite graph G is Δ(G)-colourable, and its chromatic number (the chromatic index
+    of G) equals Δ(G). The proof colours edges one at a time with partial proper edge
+    colourings, recolouring by an a/b Kempe-chain swap whose correctness rests on a parity
+    argument in the bipartite graph; the lower bound comes from the edges at a vertex of maximum
+    degree, which are pairwise adjacent in the line graph.
+  authors:
+    - "Juan Pablo Traverso Gianini"
+  license: "Apache-2.0"
+  responsible_maintainers:
+    - "Juan Pablo Traverso Gianini"
+
+classification:
+  arxiv: ["math.CO"]
+  msc2020: ["05C15"]
+
+sources:
+  - title: "Über Graphen und ihre Anwendung auf Determinantentheorie und Mengenlehre"
+    authors:
+      - "Dénes Kőnig"
+    id: "doi:10.1007/BF01456961"
+    type: "paper"
+    location: "Mathematische Annalen 77 (1916), 453–465"
+    relationship: "formalizes"
+    note: "Kőnig's line colouring theorem: the edges of a bipartite graph can be coloured with Δ colours. The formal proof uses the standard Kempe-chain argument."
+    license: "unknown"
+    author_endorsement: "n/a"
+
+related_formalizations:
+  - id: "jtraverso/vizing (LeanPool/lean-pool, project Vizing)"
+    relationship: "builds-on"
+    note: >-
+      The partial proper edge colourings, free colours and Kempe-chain swaps in LeanPool/Vizing/
+      (Basic, Kempe, Fan, Endpoints, Step, Main) are the author's own Vizing development, copied
+      from LeanPool/lean-pool at commit 26ce45d3871e5560a8baffa4d49a8942b1d20a24; only the
+      modules needed here are included. Konig/Basic.lean (the Kőnig step, the parity argument,
+      the lower bound), Challenge.lean and Solution.lean are new.
+
+status:
+  scope: >-
+    Proved for every finite simple graph with decidable adjacency that is 2-colourable: the line
+    graph is Δ(G)-colourable and its chromatic number equals Δ(G).
+  sorry_count: 0
+  sorry_in_definitions: 0
+  axioms: []
+
+automation:
+  methods:
+    - method: "agent"
+      models: ["Claude Opus 5.5"]
+      framework: "Claude Code (Anthropic)"
+      tool_setup: >-
+        AI-assisted development under the author's direction: the Kőnig step on top of the
+        Vizing Kempe-chain development, the lower bound, and the Palomar packaging, checked with
+        `lake build` and `#print axioms` (Lean v4.35.0-rc3, Mathlib
+        c55e6e786f49471c72fbddbec5415808896aec1e).
+      cost:
+        wall_time: "about one hour"
+        spend_usd: "subscription-based"
+        hardware: "local machine"
+      prompting_notes: "Natural-language instructions in Spanish, directed by the author."
+  spend_usd: "subscription-based"
+  notes: >-
+    The result and the route were chosen by the human author; the Lean proofs are AI-generated
+    and mechanically verified (no `sorry`, axioms limited to propext, Classical.choice and
+    Quot.sound, identical elaborated types for the Challenge/Solution pair).
+
+fidelity:
+  divergences: >-
+    None in substance. Bipartite is expressed as `G.Colorable 2`, edge colourings as colourings
+    of `G.lineGraph`, and the chromatic index as `G.lineGraph.chromaticNumber` (an `ℕ∞`). For a
+    graph without edges both sides are 0.
+
+review:
+  status: "agent-reviewed"
+  reviewers:
+    - "Claude Opus 5.5 (AI agent in Claude Code, acting for the author)"
+  notes: >-
+    Agent review by Claude Opus 5.5, distinct from the mechanical verification: the agent
+    compared the Challenge statements with Kőnig's theorem (Δ colours suffice for bipartite
+    graphs; χ' = Δ), checked that the vendored Vizing modules are the merged Lean Pool sources,
+    and confirmed by `lake build`, `#print axioms` and a comparison of the fully elaborated
+    Challenge and Solution types that the proofs use no `sorry` and only propext,
+    Classical.choice and Quot.sound. The author directed the work and approved the statements.
+    No independent human mathematical review has been performed. The result is classical; no
+    mathematical novelty is claimed.
+
+alignment:
+  namespace: "KonigEdgeColouring"
+  statements:
+    - source: "Kőnig (1916), line colouring theorem"
+      lean: "KonigEdgeColouring.lineGraph_colorable"
+      module: "Challenge"
+      status: "proved"
+      note: "A finite bipartite graph has a proper edge colouring with Δ(G) colours."
+    - source: "Kőnig (1916), chromatic-index form"
+      lean: "KonigEdgeColouring.lineGraph_chromaticNumber_eq"
+      module: "Challenge"
+      status: "proved"
+      note: "χ'(G) = Δ(G) for finite bipartite graphs."
+
+acknowledgements: >-
+  Mathlib and the Lean community; Lean Pool.
