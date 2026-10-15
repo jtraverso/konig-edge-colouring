@@ -1,4 +1,4 @@
-# Mathlib definitions used in Challenge.lean (Kőnig's edge-colouring theorem)
+# Mathlib definitions used in Challenge.lean (Kőnig's theorems and Dilworth's theorem)
 
 Verbatim excerpts of the Mathlib definitions used by the statements in `Challenge.lean`, at the
 pinned Mathlib revision `c55e6e786f49471c72fbddbec5415808896aec1e` (tag `v4.35.0-rc3`, repository
@@ -181,4 +181,85 @@ protected def Mem (x : α) (z : Sym2 α) : Prop :=
 /-- `card α` is the number of elements in `α`, defined when `α` is a fintype. -/
 def card (α) [Fintype α] : ℕ :=
   (@univ α _).card
+```
+
+## SimpleGraph.Subgraph
+
+`Mathlib/Combinatorics/SimpleGraph/Subgraph.lean`, line 63:
+
+```lean
+/-- A subgraph of a `SimpleGraph` is a subset of vertices along with a restriction of the adjacency
+relation that is symmetric and is supported by the vertex subset.  They also form a bounded lattice.
+
+Thinking of `V → V → Prop` as `Set (V × V)`, a set of darts (i.e., half-edges), then
+`Subgraph.adj_sub` is that the darts of a subgraph are a subset of the darts of `G`. -/
+@[ext]
+structure Subgraph {V : Type u} (G : SimpleGraph V) where
+  /-- Vertices of the subgraph -/
+  verts : Set V
+  /-- Edges of the subgraph -/
+  Adj : V → V → Prop
+  adj_sub : ∀ {v w : V}, Adj v w → G.Adj v w
+  edge_vert : ∀ {v w : V}, Adj v w → v ∈ verts
+  symm : Std.Symm Adj := by aesop_graph
+```
+
+## SimpleGraph.Subgraph.edgeSet
+
+`Mathlib/Combinatorics/SimpleGraph/Subgraph.lean`, line 250:
+
+```lean
+/-- The edge set of `G'` consists of a subset of edges of `G`. -/
+def edgeSet (G' : Subgraph G) : Set (Sym2 V) := Sym2.fromRel G'.symm
+```
+
+## SimpleGraph.Subgraph.IsMatching
+
+`Mathlib/Combinatorics/SimpleGraph/Matching.lean`, line 67:
+
+```lean
+/--
+The subgraph `M` of `G` is a matching if every vertex of `M` is incident to exactly one edge in `M`.
+We say that the vertices in `M.support` are *matched* or *saturated*.
+-/
+def IsMatching (M : Subgraph G) : Prop := ∀ ⦃v⦄, v ∈ M.verts → ∃! w, M.Adj v w
+```
+
+## SimpleGraph.IsVertexCover
+
+`Mathlib/Combinatorics/SimpleGraph/VertexCover.lean`, line 36:
+
+```lean
+/-- `c` is a vertex cover of `G` if every edge in `G` is incident to at least one vertex in `c`. -/
+def IsVertexCover (G : SimpleGraph V) (c : Set V) : Prop :=
+  ∀ ⦃v w : V⦄, G.Adj v w → v ∈ c ∨ w ∈ c
+```
+
+## Set.ncard
+
+`Mathlib/Data/Set/Card.lean`, line 613:
+
+```lean
+/-- The cardinality of `s : Set α` . Has the junk value `0` if `s` is infinite -/
+noncomputable def ncard (s : Set α) : ℕ := ENat.toNat s.encard
+```
+
+## IsAntichain
+
+`Mathlib/Order/Antichain.lean`, line 42:
+
+```lean
+/-- An antichain is a set such that no two distinct elements are related. -/
+def IsAntichain (r : α → α → Prop) (s : Set α) : Prop :=
+  s.Pairwise rᶜ
+```
+
+## IsChain
+
+`Mathlib/Order/Preorder/Chain.lean`, line 51:
+
+```lean
+/-- A chain is a set `s` satisfying `x ≺ y ∨ x = y ∨ y ≺ x` for all `x y ∈ s`. -/
+def IsChain (s : Set α) : Prop :=
+  s.Pairwise fun x y => x ≺ y ∨ y ≺ x
 ```

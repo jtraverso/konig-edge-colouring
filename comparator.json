@@ -3,9 +3,17 @@
   "solution_module": "Solution",
   "theorem_names": [
     "KonigEdgeColouring.lineGraph_colorable",
-    "KonigEdgeColouring.lineGraph_chromaticNumber_eq"
+    "KonigEdgeColouring.lineGraph_chromaticNumber_eq",
+    "KonigEgervary.card_matching_le_card_vertexCover",
+    "KonigEgervary.exists_matching_card_eq_vertexCover",
+    "Dilworth.dilworth",
+    "Dilworth.mirsky"
   ],
   "definition_names": [],
-  "permitted_axioms": ["propext", "Quot.sound", "Classical.choice"],
+  "permitted_axioms": [
+    "propext",
+    "Quot.sound",
+    "Classical.choice"
+  ],
   "enable_nanoda": true
 }

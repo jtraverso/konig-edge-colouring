@@ -2,14 +2,18 @@
 version: "v0.4"
 
 project:
-  name: "Kőnig's edge-colouring theorem"
+  name: "Kőnig's theorems and Dilworth's theorem"
   description: >-
     A Lean 4 / Mathlib formalization of Kőnig's edge-colouring theorem: the line graph of a
     finite bipartite graph G is Δ(G)-colourable, and its chromatic number (the chromatic index
     of G) equals Δ(G). The proof colours edges one at a time with partial proper edge
     colourings, recolouring by an a/b Kempe-chain swap whose correctness rests on a parity
     argument in the bipartite graph; the lower bound comes from the edges at a vertex of maximum
-    degree, which are pairwise adjacent in the line graph.
+    degree, which are pairwise adjacent in the line graph. Also formalized: the Kőnig–Egerváry
+    theorem (a finite bipartite graph has a matching and a vertex cover of the same size, via
+    Hall's theorem with deficiency, plus weak duality for all finite graphs), Dilworth's theorem
+    (an antichain A and a partition into |A| chains, by Galvin's induction) and Mirsky's dual
+    theorem (a chain C and a partition into |C| antichains, by the height function).
   authors:
     - "Juan Pablo Traverso Gianini"
   license: "Apache-2.0"
@@ -18,7 +22,7 @@ project:
 
 classification:
   arxiv: ["math.CO"]
-  msc2020: ["05C15"]
+  msc2020: ["05C15", "05C70", "06A07"]
 
 sources:
   - title: "Über Graphen und ihre Anwendung auf Determinantentheorie und Mengenlehre"
@@ -32,6 +36,46 @@ sources:
     license: "unknown"
     author_endorsement: "n/a"
 
+  - title: "Gráfok és mátrixok"
+    authors:
+      - "Dénes Kőnig"
+    type: "paper"
+    location: "Matematikai és Fizikai Lapok 38 (1931), 116–119"
+    relationship: "formalizes"
+    note: "Kőnig's minimax theorem for bipartite graphs (maximum matching = minimum vertex cover), proved independently in matrix form by Egerváry (Mat. Fiz. Lapok 38 (1931), 16–28). The formal proof uses Hall's theorem with deficiency."
+    license: "unknown"
+    author_endorsement: "n/a"
+  - title: "A decomposition theorem for partially ordered sets"
+    authors:
+      - "R. P. Dilworth"
+    id: "doi:10.2307/1969503"
+    type: "paper"
+    location: "Annals of Mathematics 51 (1950), 161–166"
+    relationship: "formalizes"
+    note: "Dilworth's chain decomposition theorem for finite posets."
+    license: "unknown"
+    author_endorsement: "n/a"
+  - title: "A dual of Dilworth's decomposition theorem"
+    authors:
+      - "L. Mirsky"
+    id: "doi:10.1080/00029890.1971.11992886"
+    type: "paper"
+    location: "American Mathematical Monthly 78 (1971), 876–877"
+    relationship: "formalizes"
+    note: "Partition of a finite poset into as many antichains as the size of a longest chain."
+    license: "unknown"
+    author_endorsement: "n/a"
+  - title: "A proof of Dilworth's chain decomposition theorem"
+    authors:
+      - "Fred Galvin"
+    id: "doi:10.1080/00029890.1994.11996954"
+    type: "paper"
+    location: "American Mathematical Monthly 101 (1994), 352–353"
+    relationship: "background"
+    note: "The induction proof followed for Dilworth's theorem."
+    license: "unknown"
+    author_endorsement: "n/a"
+
 related_formalizations:
   - id: "jtraverso/vizing (LeanPool/lean-pool, project Vizing)"
     relationship: "builds-on"
@@ -39,25 +83,41 @@ related_formalizations:
       The partial proper edge colourings, free colours and Kempe-chain swaps in LeanPool/Vizing/
       (Basic, Kempe, Fan, Endpoints, Step, Main) are the author's own Vizing development, copied
       from LeanPool/lean-pool at commit 26ce45d3871e5560a8baffa4d49a8942b1d20a24; only the
-      modules needed here are included. Konig/Basic.lean (the Kőnig step, the parity argument,
-      the lower bound), Challenge.lean and Solution.lean are new.
+      modules needed here are included. The modules in Konig/ (Basic.lean: the Kőnig step, the
+      parity argument, the lower bound; Egervary.lean; Dilworth.lean), Challenge.lean and
+      Solution.lean are new.
 
 status:
   scope: >-
     Proved for every finite simple graph with decidable adjacency that is 2-colourable: the line
-    graph is Δ(G)-colourable and its chromatic number equals Δ(G).
+    graph is Δ(G)-colourable and its chromatic number equals Δ(G); for every finite 2-colourable
+    graph there are a matching and a vertex cover of the same size (and weak duality for every
+    finite graph); for every finite partial order, Dilworth's and Mirsky's decompositions.
   sorry_count: 0
   sorry_in_definitions: 0
   axioms: []
 
 automation:
   methods:
+    - method: "autonomous"
+      models: ["Aristotle (Harmonic)"]
+      framework: "Aristotle CLI"
+      tool_setup: >-
+        Produced the proofs of Konig/Egervary.lean and Konig/Dilworth.lean in one run from the
+        formal statements and proof plans; the return was audited (statements and headers
+        unchanged, no added axioms) and rebuilt locally.
+      cost:
+        wall_time: "under one hour"
+        spend_usd: "not tracked"
+        hardware: "API-only"
+      prompting_notes: "Formal statements and proof plans supplied."
     - method: "agent"
       models: ["Claude Opus 5.5"]
       framework: "Claude Code (Anthropic)"
       tool_setup: >-
         AI-assisted development under the author's direction: the Kőnig step on top of the
-        Vizing Kempe-chain development, the lower bound, and the Palomar packaging, checked with
+        Vizing Kempe-chain development, the lower bound, the statements and proof plans for the
+        Kőnig–Egerváry, Dilworth and Mirsky theorems, and the Palomar packaging, checked with
         `lake build` and `#print axioms` (Lean v4.35.0-rc3, Mathlib
         c55e6e786f49471c72fbddbec5415808896aec1e).
       cost:
@@ -75,7 +135,10 @@ fidelity:
   divergences: >-
     None in substance. Bipartite is expressed as `G.Colorable 2`, edge colourings as colourings
     of `G.lineGraph`, and the chromatic index as `G.lineGraph.chromaticNumber` (an `ℕ∞`). For a
-    graph without edges both sides are 0.
+    graph without edges both sides are 0. The minimax theorems are stated existentially (a
+    matching and a vertex cover of equal size; an antichain and a chain partition of matching
+    size), which together with weak duality is the equality of the optimum values; a partition
+    into m parts is a map to Fin m, some of whose fibres may be empty.
 
 review:
   status: "agent-reviewed"
@@ -83,16 +146,17 @@ review:
     - "Claude Opus 5.5 (AI agent in Claude Code, acting for the author)"
   notes: >-
     Agent review by Claude Opus 5.5, distinct from the mechanical verification: the agent
-    compared the Challenge statements with Kőnig's theorem (Δ colours suffice for bipartite
-    graphs; χ' = Δ), checked that the vendored Vizing modules are the merged Lean Pool sources,
+    compared the Challenge statements with Kőnig's edge-colouring theorem (Δ colours suffice for
+    bipartite graphs; χ' = Δ), the Kőnig–Egerváry theorem and the theorems of Dilworth and
+    Mirsky, checked that the Aristotle return left every statement and header unchanged, checked that the vendored Vizing modules are the merged Lean Pool sources,
     and confirmed by `lake build`, `#print axioms` and a comparison of the fully elaborated
     Challenge and Solution types that the proofs use no `sorry` and only propext,
     Classical.choice and Quot.sound. The author directed the work and approved the statements.
-    No independent human mathematical review has been performed. The result is classical; no
+    No independent human mathematical review has been performed. The results are classical; no
     mathematical novelty is claimed.
 
 alignment:
-  namespace: "KonigEdgeColouring"
+  namespace: "KonigEdgeColouring, KonigEgervary, Dilworth"
   statements:
     - source: "Kőnig (1916), line colouring theorem"
       lean: "KonigEdgeColouring.lineGraph_colorable"
@@ -104,6 +168,22 @@ alignment:
       module: "Challenge"
       status: "proved"
       note: "χ'(G) = Δ(G) for finite bipartite graphs."
+    - source: "Weak duality between matchings and vertex covers"
+      lean: "KonigEgervary.card_matching_le_card_vertexCover"
+      module: "Challenge"
+      status: "proved"
+    - source: "Kőnig (1931), Egerváry (1931): maximum matching = minimum vertex cover"
+      lean: "KonigEgervary.exists_matching_card_eq_vertexCover"
+      module: "Challenge"
+      status: "proved"
+    - source: "Dilworth (1950)"
+      lean: "Dilworth.dilworth"
+      module: "Challenge"
+      status: "proved"
+    - source: "Mirsky (1971)"
+      lean: "Dilworth.mirsky"
+      module: "Challenge"
+      status: "proved"
 
 acknowledgements: >-
-  Mathlib and the Lean community; Lean Pool.
+  Mathlib and the Lean community; Harmonic's Aristotle; Lean Pool.

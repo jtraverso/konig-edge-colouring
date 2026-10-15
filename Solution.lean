@@ -7,14 +7,19 @@ module
 
 public import Mathlib
 public import Konig.Basic
+public import Konig.Egervary
+public import Konig.Dilworth
 
 /-!
 # Proofs of the statements in `Challenge.lean`
 
-The proofs are in `Konig/Basic.lean`: edges are coloured one at a time with the partial proper
-edge colourings of the Vizing development (`LeanPool/Vizing/`), using a Kempe-chain swap whose
-correctness rests on a parity argument in the bipartite graph.
+The Kőnig–Egerváry theorem is proved in `Konig/Egervary.lean` (Hall's theorem with deficiency),
+Dilworth's and Mirsky's theorems in `Konig/Dilworth.lean` (Galvin's induction; the height
+function). The edge-colouring theorem is proved in `Konig/Basic.lean`: edges are coloured one
+at a time with the partial proper edge colourings of the Vizing development (`LeanPool/Vizing/`),
+using a Kempe-chain swap whose correctness rests on a parity argument in the bipartite graph.
 -/
+
 @[expose] public section
 
 namespace KonigEdgeColouring
@@ -33,3 +38,41 @@ theorem lineGraph_chromaticNumber_eq {V : Type*} [Fintype V] (G : SimpleGraph V)
   Konig.lineGraph_chromaticNumber_of_colorable_two G h
 
 end KonigEdgeColouring
+
+open SimpleGraph
+
+namespace KonigEgervary
+
+/-- **Weak duality.** A matching has at most as many edges as a vertex cover has vertices. -/
+theorem card_matching_le_card_vertexCover {V : Type*} [Finite V] {G : SimpleGraph V}
+    {M : G.Subgraph} (hM : M.IsMatching) {C : Set V} (hC : G.IsVertexCover C) :
+    M.edgeSet.ncard ≤ C.ncard :=
+  Konig.Egervary.card_matching_le_card_vertexCover hM hC
+
+/-- **Kőnig–Egerváry (1931).** A finite bipartite graph has a matching and a vertex cover of the
+same size. -/
+theorem exists_matching_card_eq_vertexCover {V : Type*} [Finite V] (G : SimpleGraph V)
+    (h : G.Colorable 2) :
+    ∃ (M : G.Subgraph) (C : Set V), M.IsMatching ∧ G.IsVertexCover C ∧
+      M.edgeSet.ncard = C.ncard :=
+  Konig.Egervary.exists_matching_card_eq_vertexCover G h
+
+end KonigEgervary
+
+namespace Dilworth
+
+/-- **Dilworth's theorem (1950).** A finite poset has an antichain `A` and a partition into `|A|`
+chains. -/
+theorem dilworth {α : Type*} [PartialOrder α] [Finite α] :
+    ∃ A : Finset α, IsAntichain (· ≤ ·) (A : Set α) ∧
+      ∃ c : α → Fin A.card, ∀ i, IsChain (· ≤ ·) {x | c x = i} :=
+  Konig.Poset.dilworth
+
+/-- **Mirsky's theorem (1971).** A finite poset has a chain `C` and a partition into `|C|`
+antichains. -/
+theorem mirsky {α : Type*} [PartialOrder α] [Finite α] :
+    ∃ C : Finset α, IsChain (· ≤ ·) (C : Set α) ∧
+      ∃ c : α → Fin C.card, ∀ i, IsAntichain (· ≤ ·) {x | c x = i} :=
+  Konig.Poset.mirsky
+
+end Dilworth
